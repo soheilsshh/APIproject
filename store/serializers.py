@@ -1,6 +1,6 @@
 from decimal import Decimal
 from rest_framework import serializers
-from .models import Cart, Customer, Product ,Collection,Review ,CartItem
+from .models import Cart, Customer, Order, OrderItem, Product ,Collection,Review ,CartItem
 
 class CollcetionSerializer(serializers.ModelSerializer): #serializer.Serializer
     class Meta:
@@ -8,7 +8,12 @@ class CollcetionSerializer(serializers.ModelSerializer): #serializer.Serializer
         fields = ['id' , 'title','product_count'] # we can use fields = '__all__' this is bad way
         
     product_count = serializers.IntegerField()
-        
+
+
+class SimpleProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id' , 'title' , 'unit_price']
         
     
 
@@ -105,3 +110,27 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['id' , 'user_id' ,'membership' , 'phone' , 'birth_date']
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = SimpleProductSerializer()
+    
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'quantity' , 'unit_price']
+        
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many = True)
+    class Meta:
+        model = Order
+        fields = ['id' , 'customer' , 'placed_at' , 'payment_status' , 'items']
+
+class CreateOrderSerializer(serializers.Serializer):
+    cart_id = serializers.UUIDField()
+    
+    def save(self, **kwargs):
+        print(self.validated_data['cart_id'])
+        print(self.context['user_id'])
+        
+        (customer, created) = Customer.objects.get_or_create(user_id = self.context['user_id'])
+        Order.objects.create(customer = customer)

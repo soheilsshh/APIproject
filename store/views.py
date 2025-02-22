@@ -12,8 +12,8 @@ from rest_framework.permissions import IsAuthenticated ,AllowAny
 
 from .pagination import DefaultPagination
 from .filters import ProductFilter
-from .models import Cart, CartItem, OrderItem, Product,Collection, Review, Customer
-from .serializers import CartSerializer, CustomerSerializer, ProductSerializer,CollcetionSerializer, Reviewserializer , CartItemsSerializer,AddCartItemserializer, UpdateCartItemSerializer
+from .models import Cart, CartItem, Order, OrderItem, Product,Collection, Review, Customer
+from .serializers import CartSerializer, CreateOrderSerializer, CustomerSerializer, OrderSerializer, ProductSerializer,CollcetionSerializer, Reviewserializer , CartItemsSerializer,AddCartItemserializer, UpdateCartItemSerializer
 
 
 class ProductViewSet(ModelViewSet):
@@ -118,3 +118,22 @@ class CustomerViewSet(CreateModelMixin,
             serializer.is_valid()
             serializer.save()
             return Response(serializer.data)
+        
+class OrderViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateOrderSerializer
+        return OrderSerializer
+    
+    def get_serializer_context(self):
+        return {'user_id' : self.request.user.id}
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        if user.is_staff:
+            return Order.objects.all()
+        
+        return Order.objects.filter(customer_id = user.id)
