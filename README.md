@@ -70,7 +70,7 @@ python manage.py runserver
 The project will be available at http://127.0.0.1:8000/.
 
 ## Usage
-Access the API at http://127.0.0.1:8000/ for all the product and profile-related actions.
+Access the API at http://127.0.0.1:8000/store/ for all the product and profile-related actions.
 Use tools like Postman or Insomnia to test the API endpoints (e.g., POST requests for creating products, GET requests for retrieving products).
 Register a new user, log in, and perform actions such as creating or managing products.
 Use the provided endpoints to interact with the database.
